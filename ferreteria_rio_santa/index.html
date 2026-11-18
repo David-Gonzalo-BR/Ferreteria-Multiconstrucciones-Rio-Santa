@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiconstrucciones Río Santa S.A.C.</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🏗️</div>
+    <div class="login-header"><h1>Multiconstrucciones</h1><p>Río Santa S.A.C. — Acceso Ferretero</p></div>
+    <form onsubmit="login(event)" autocomplete="off">
+      <div class="err" id="login-err"></div>
+      <div class="field" id="f-user"><span class="ico">👤</span><input type="text" id="username" placeholder=" " required oninput="limpiarErr()"><label for="username">Usuario / Correo</label></div>
+      <div class="field" id="f-pass"><span class="ico">🔒</span><input type="password" id="password" placeholder=" " required oninput="limpiarErr()"><label for="password">Contraseña</label><button type="button" class="eye" id="eye" onclick="verClave()" title="Mostrar u ocultar contraseña">👁️</button></div>
+      <button type="submit" class="btn-submit">Ingresar a la Tienda</button>
+    </form>
+    <div class="footer-links"><a onclick="abrir('forgotModal')">¿Olvidaste tu contraseña?</a><a onclick="abrir('registerModal')">Crear Cuenta</a></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="side">
+    <h1>🏗️ Río Santa</h1>
+    <h3>Ventanas</h3>
+    <button id="bt-tienda" onclick="vista('tienda')">🛍️ Tienda</button>
+    <button id="bt-inv" onclick="vista('inv')" style="display:none">📦 Inventario y stock</button>
+    <button id="bt-ventas" onclick="vista('ventas')" style="display:none">🧾 Ventas realizadas</button>
+    <button id="bt-rep" onclick="vista('rep')" style="display:none">📊 Reportes y Ajustes</button>
+    <button id="bt-nos" onclick="vista('nos')">🏢 Nosotros y contacto</button>
+    <h3>Categorías</h3>
+    <div id="cats"></div>
+  </aside>
+
+  <main>
+    <header>
+      <input type="text" id="input-search" placeholder="¿Buscas cemento, fierro, tanques Rotoplas, clavos, tablas?" oninput="buscar(this.value)">
+      <div class="sp"></div>
+      <span class="loc">📍 Huaral, PE</span>
+      <span class="who" id="who"></span>
+      <button class="salir" onclick="salir()">Salir</button>
+    </header>
+
+    <!-- VENTANA 1: TIENDA -->
+    <section id="v-tienda" class="wrap">
+      <div class="pack"><b>Gran Pack Remodelación</b><span>Inodoro + Lavatorio + Espejo — <em>S/ 450.00</em> <s style="color:#94a3b8;font-size:.75rem">S/ 520.00</s></span><button class="btn-submit" onclick="agregar(25)">Añadir Pack</button></div>
+      <h2 id="titulo">Catálogo completo</h2>
+      <div class="shop">
+        <div id="products-grid" class="grid"></div>
+        <div class="cart">
+          <h3>🛒 Tu Carrito</h3>
+          <ul id="cart-items"></ul>
+          <div class="aviso" id="aviso"></div>
+          <div class="sum">
+            <div class="row"><span>Subtotal:</span><span id="subtotal">S/ 0.00</span></div>
+            <div class="row" style="color:#16a34a"><span>Descuento Volumen:</span><span id="discount">S/ 0.00</span></div>
+            <div class="row t"><span>Total:</span><span id="total">S/ 0.00</span></div>
+          </div>
+          <div class="acts">
+            <button id="btn-process" class="btn-co" onclick="procesar()" disabled>💳 Pagar con Yape</button>
+            <a id="whatsapp-btn" href="#" target="_blank" class="btn-wa">Pedir por WhatsApp</a>
+            <button class="btn-clear" onclick="vaciar()">Vaciar Carrito</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VENTANA 2: INVENTARIO -->
+    <section id="v-inv" class="wrap" style="display:none">
+      <h2>📦 Inventario y stock</h2>
+      <p class="nota">Edita el stock de cada producto (usa las categorías de la izquierda para filtrar). <b>En carrito</b> y <b>Quedaría</b> te dicen si te conviene comprar con el stock que tienes. Los cambios se guardan en la base de datos.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Producto</th><th>Subcategoría</th><th>Stock actual</th><th>En carrito</th><th>Quedaría</th><th>Estado</th></tr></thead>
+        <tbody id="inv-body"></tbody>
+      </table></div>
+      <button class="btn-reset" onclick="resetStock()">Restablecer stock inicial</button>
+    </section>
+
+    <!-- VENTANA 3: VENTAS -->
+    <section id="v-ventas" class="wrap" style="display:none">
+      <h2>🧾 Ventas realizadas</h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Boleta</th><th>Fecha</th><th>Detalle</th><th>Total</th></tr></thead>
+        <tbody id="ventas-body"></tbody>
+      </table></div>
+      <button class="btn-reset" onclick="borrarVentas()">Borrar historial</button>
+    </section>
+
+    <!-- VENTANA 4: REPORTES Y MANTENIMIENTO DE STOCK (IMAGEN REFERENCIA) -->
+    <section id="v-rep" class="wrap" style="display:none">
+      <h2>Mantenimiento de stock (ajuste)</h2>
+      <p class="nota">Control individual de mermas, ingresos, salidas y ajustes por producto con trazabilidad de usuario y cantidad/peso.</p>
+      <div id="rep-body"></div>
+    </section>
+
+    <!-- VENTANA 5: NOSOTROS -->
+    <section id="v-nos" class="wrap" style="display:none">
+      <h2>🏢 Nosotros y contacto</h2>
+      <div class="cols">
+        <div class="panel"><h3>Multiconstrucciones Río Santa S.A.C.</h3>
+          <p>Ferretería y materiales de construcción en Huaral. Todo para tu obra: cemento, fierro, ladrillos, tanques, tablas, sanitarios, iluminación y herramientas.</p></div>
+        <div class="panel"><h3>Atención</h3>
+          <p>📍 Huaral, Lima, Perú</p><p>🕒 Lunes a sábado, 8:00 a.m. – 6:00 p.m.</p><p>📞 954175106</p></div>
+        <div class="panel"><h3>Pedidos</h3>
+          <p>Arma tu carrito en la Tienda y envíalo por WhatsApp.</p>
+          <a class="btn-wa" style="display:block;margin-top:.6rem" href="https://wa.me/51954175106" target="_blank">Escribir por WhatsApp</a></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- MODALES -->
+<div id="forgotModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="cerrar('forgotModal')">&times;</span>
+  <h3 style="margin-bottom:1rem">Recuperar Contraseña</h3>
+  <form onsubmit="recuperar(event)" autocomplete="off">
+    <div class="err" id="fg-err"></div><div class="okmsg" id="fg-ok"></div>
+    <div class="form-group"><label>Usuario o correo registrado</label><input type="text" id="fg-user" placeholder="Ingresa tu usuario o correo" required></div>
+    <div class="form-group"><label>Nueva contraseña</label><input type="password" id="fg-pass" placeholder="Ingresa una contraseña segura" required oninput="medidor(this.value,'fg')">
+      <div class="meter" id="fg-meter"><span></span><span></span><span></span></div><div class="mtxt" id="fg-txt">Ingresa una contraseña</div>
+      <div class="mhint">Usa 8+ caracteres, mayúsculas, minúsculas, números y símbolos.</div></div>
+    <div class="form-group"><label>Repite la nueva contraseña</label><input type="password" id="fg-pass2" placeholder="Repite la contraseña" required></div>
+    <button type="submit" class="btn-submit">Cambiar contraseña</button></form></div></div>
+
+<div id="registerModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="cerrar('registerModal')">&times;</span>
+  <h3 style="margin-bottom:1rem">Crear Cuenta de Cliente</h3>
+  <form onsubmit="registrar(event)" autocomplete="off">
+    <div class="err" id="rg-err"></div><div class="okmsg" id="rg-ok"></div>
+    <div class="form-group"><label>Usuario o correo</label><input type="text" id="rg-user" placeholder="Elige un usuario o correo" required></div>
+    <div class="form-group"><label>Contraseña</label><input type="password" id="rg-pass" placeholder="Ingresa una contraseña segura" required oninput="medidor(this.value,'rg')">
+      <div class="meter" id="rg-meter"><span></span><span></span><span></span></div><div class="mtxt" id="rg-txt">Ingresa una contraseña</div>
+      <div class="mhint">Usa 8+ caracteres, mayúsculas, minúsculas, números y símbolos.</div></div>
+    <button type="submit" class="btn-submit">Registrarse</button></form></div></div>
+
+<!-- MODAL PAGO CON YAPE -->
+<div id="yapeModal" class="modal">
+  <div class="modal-content" style="max-width:380px; text-align:center;">
+    <span class="close-btn" onclick="cerrar('yapeModal')">&times;</span>
+    <h3 style="margin-bottom:0.5rem; color:#7c3aed;">📲 Pago con Yape</h3>
+    <p style="font-size:0.85rem; color:#64748b; margin-bottom:1rem;">Escanea el código QR con tu aplicación de Yape para completar tu compra.</p>
+    
+    <div style="background:#f8fafc; padding:15px; border-radius:14px; border:2px dashed #cbd5e1; display:inline-block; margin-bottom:1rem;">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=YAPE-MULTICONSTRUCCIONES-RIO-SANTA-SAC-954175106" alt="QR Yape" style="width:180px; height:180px; display:block; margin:0 auto; border-radius:8px;">
+      <p style="font-size:0.8rem; font-weight:700; color:#334155; margin-top:8px;">Multiconstrucciones Río Santa S.A.C.</p>
+      <p style="font-size:0.75rem; color:#64748b;">Celular: 954175106</p>
+    </div>
+
+    <div style="background:#fff7ed; border:1px solid #ffedd5; padding:10px; border-radius:10px; margin-bottom:1rem; font-size:0.85rem;">
+      <span>Monto a pagar: </span><strong id="yape-monto-total" style="color:#ea580c; font-size:1.1rem;">S/ 0.00</strong>
+    </div>
+
+    <button onclick="confirmarPagoYape()" class="btn-submit" style="background:linear-gradient(135deg,#7c3aed,#6d28d9); font-size:0.95rem; padding:0.8rem;">
+      ✅ Ya pagué con Yape (Generar Boleta)
+    </button>
+  </div>
+</div>
+
+<!-- MODAL RECIBO Y PDF -->
+<div id="receiptModal" class="modal"><div class="modal-content" style="max-width:480px">
+  <div class="okmsg show" style="margin-bottom:1rem">✅ ¡Pago realizado con éxito! Aquí está tu comprobante.</div>
+  <div class="ticket">
+    <div class="ticket-header"><h4>MULTICONSTRUCCIONES RÍO SANTA S.A.C.</h4><p>RUC: 20601234567</p><p>Huaral, Perú</p><p id="ticket-fecha"></p><p><b>COMPROBANTE ELECTRÓNICO</b></p><p id="ticket-n"></p></div>
+    <table><thead><tr><th>Cant. / Descripción</th><th>P.Unit</th><th>Importe</th></tr></thead><tbody id="ticket-items"></tbody></table>
+    <div style="font-size:.78rem;border-top:1px dashed #cbd5e1;padding-top:5px">
+      <div class="row"><span>Subtotal:</span><span id="t-sub"></span></div>
+      <div class="row"><span>Descuento:</span><span id="t-desc"></span></div>
+      <div class="row t"><span>TOTAL A PAGAR:</span><span id="t-tot"></span></div>
+    </div>
+    <p style="text-align:center;margin-top:1rem;font-size:.72rem;color:#64748b">¡Gracias por su compra en Multiconstrucciones Río Santa!</p>
+  </div>
+  <a id="pdf-link" class="btn-pdf" href="#" download="boleta.pdf">⬇ Descargar boleta en PDF</a>
+  <button onclick="cerrar('receiptModal')" class="btn-submit" style="margin-top:.6rem">Aceptar y Nueva Venta</button></div></div>
+
+<!-- BARRA DE ACCESIBILIDAD -->
+<div id="accessibility-bar">
+    <button type="button" class="acc-btn" title="Activar zoom en toda la página" onclick="toggleZoomGeneral()" id="btn-zoom-control">🔍</button>
+    <button type="button" class="acc-btn" title="Cambiar modo de colores (Daltonismo)" onclick="toggleDaltonismo()" id="btn-daltonismo-control">👁️‍🗨️</button>
+    <button type="button" class="acc-btn" title="Activar lectura por voz al apuntar" onclick="toggleModoVozGlobal()" id="btn-audio-control">🔊</button>
+</div>
+
+<!-- ANIMACIÓN FERRETERÍA INTRO -->
+<script>
+(function(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var W=window.innerWidth,H=window.innerHeight,BW=150,BH=60,cx=W/2,cy=H/2;
+  var ov=document.createElement('div');ov.id='intro';
+  var wall=document.createElement('div');wall.className='wall';
+  var cols=Math.ceil(W/BW)+2,rows=Math.ceil(H/BH)+1,i,j,html='';
+  for(j=0;j<rows;j++){for(i=-1;i<cols;i++){
+    var x=i*BW+(j%2?-BW/2:0),y=j*BH,bx=x+BW/2-cx,by=y+BH/2-cy,d=Math.sqrt(bx*bx+by*by);
+    var hue=10+Math.random()*10,lig=28+Math.random()*10;
+    html+='<div class="b" style="left:'+x+'px;top:'+y+'px;width:'+BW+'px;height:'+BH+'px;background:hsl('+hue+',55%,'+lig+'%);'
+      +'--x:'+(bx*1.1+(Math.random()-.5)*160).toFixed(0)+'px;--y:'+(by*1.1+H*.35+Math.random()*200).toFixed(0)+'px;'
+      +'--r:'+((Math.random()-.5)*160).toFixed(0)+'deg;--d:'+(d/2400).toFixed(2)+'s"></div>';
+  }}
+  wall.innerHTML=html;ov.appendChild(wall);
+  ov.insertAdjacentHTML('beforeend',
+    '<svg class="crack" viewBox="0 0 420 420">'
+    +'<path class="c1" d="M210 210 L180 150 L195 100 M210 210 L260 170 L300 175 M210 210 L225 275 L205 330"/>'
+    +'<path class="c2" d="M180 150 L120 135 L80 90 M260 170 L290 120 L335 85 M225 275 L290 300 L330 350 M210 210 L140 235 L95 220"/>'
+    +'<path class="c3" d="M195 100 L215 50 M120 135 L70 160 L40 150 M300 175 L360 190 L395 170 M205 330 L160 375 M140 235 L110 290 L70 305 M290 300 L320 245"/>'
+    +'</svg><div class="flash"></div><div class="hammer">'+'<svg viewBox="0 0 260 270" width="260" height="270" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9dee6"/><stop offset=".5" stop-color="#8e98a6"/><stop offset="1" stop-color="#4b5460"/></linearGradient><linearGradient id="hw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b9772f"/><stop offset="1" stop-color="#7a4a1a"/></linearGradient></defs><line x1="236" y1="244" x2="96" y2="70" stroke="url(#hw)" stroke-width="20" stroke-linecap="round"/><g transform="translate(96 70) rotate(-38.8)"><rect x="-62" y="-27" width="124" height="54" rx="7" fill="url(#hs)" stroke="#2b323b" stroke-width="3"/><rect x="-62" y="-27" width="22" height="54" rx="6" fill="#FFC400" opacity=".9"/><rect x="-50" y="-22" width="100" height="9" rx="4" fill="#fff" opacity=".35"/></g></svg>'+'</div>'
+    +'<div class="txt">Multiconstrucciones Río Santa</div><button type="button" class="skip">Saltar ▸</button>');
+  document.body.appendChild(ov);
+  var done=false;
+  function finish(){if(done)return;done=true;
+    var l=document.getElementById('login-screen');if(l)l.classList.add('intro-pop');
+    ov.classList.add('out');setTimeout(function(){if(ov.parentNode)ov.parentNode.removeChild(ov)},700);}
+  var t1=setTimeout(function(){ov.classList.add('boom')},1800);
+  var t2=setTimeout(finish,2900);
+  ov.querySelector('.skip').addEventListener('click',function(){clearTimeout(t1);clearTimeout(t2);ov.classList.add('boom');finish()});
+})();
+</script>
+
+<script src="app.js"></script>
+</body>
+</html>
